@@ -22,31 +22,39 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, options);
 const CalculatorService = grpc.loadPackageDefinition(packageDefinition)
   .calculator as any;
 
-const client = new CalculatorService.Calculator(
-  "localhost:8080",
-  grpc.credentials.createInsecure(),
-) as CalculatorClient;
+async function main() {
+  const client = new CalculatorService.Calculator(
+    "localhost:8080",
+    grpc.credentials.createInsecure(),
+  ) as CalculatorClient;
 
-let then = performance.now();
-client.Divide({ a: 10, b: 0 }, async (err, response) => {
-  if (err) {
-    console.log("Error: ", err);
-  }
-  if (response) {
-    console.log("Division: ", response.result);
-    const now = performance.now();
-    console.log("Time taken in ms: ", now - then);
-  }
-});
+  let then = performance.now();
+  await client.Divide({ a: 10, b: 2 }, async (err, response) => {
+    if (err) {
+      console.log("Error: ", err);
+    }
+    if (response) {
+      console.log("Division: ", response.result);
+      const now = performance.now();
+      console.log("Time taken in ms: ", now - then);
+    }
+  });
 
-then = performance.now();
-client.Sum({ numbers: [100, 100, 100] }, async (err: any, response: any) => {
-  if (err) {
-    console.log("Error: ", err);
-  }
-  if (response) {
-    console.log("Addition: ", response.result);
-    const now = performance.now();
-    console.log("Time taken in ms: ", now - then);
-  }
-});
+  then = performance.now();
+  await client.Add(
+    { a: 5 ** 10, b: 5 ** 10 },
+    async (err: any, response: any) => {
+      if (err) {
+        console.log("Error: ", err);
+        return;
+      }
+      if (response) {
+        console.log("Addition: ", response.result);
+        const now = performance.now();
+        console.log("Time taken in ms: ", now - then);
+      }
+    },
+  );
+}
+
+main();
